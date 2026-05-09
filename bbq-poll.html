@@ -310,8 +310,8 @@ function doGet(e) { return doPost(e); }</textarea>
 
 <script>
 // ── Persisted config ────────────────────────────────────────────────────────
-let SCRIPT_URL = localStorage.getItem('bbq_script_url') || '';
-let SHEET_URL  = localStorage.getItem('bbq_sheet_url')  || '';
+let SCRIPT_URL = localStorage.getItem('bbq_script_url') || 'https://script.google.com/macros/s/AKfycbyl5vgQR9eD5NU3TLS62ZSWkehkZcDx7qAHL9_rL1VYAZJS0bZK5hNtMB6kRZsdUS_xgw/exec';
+let SHEET_URL  = localStorage.getItem('bbq_sheet_url')  || 'https://docs.google.com/spreadsheets/d/1JIoyXx5jNjRkCXCW5okt_ki5MWLKa-bThK9Qb1zMtKM/edit';
 let ADMIN_PIN  = localStorage.getItem('bbq_admin_pin')  || '';
 
 const CONTRIBS = [
@@ -450,7 +450,24 @@ async function submitResponse() {
     btn.disabled=true;
     btn.innerHTML='<span class="loading-spinner"></span>Saving...';
     try {
-      await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      // Build GET URL with all params
+      const url = SCRIPT_URL + '?ts=' + encodeURIComponent(payload.ts)
+        + '&familyName=' + encodeURIComponent(payload.familyName)
+        + '&adults=' + payload.adults
+        + '&juniors=' + payload.juniors
+        + '&kids=' + payload.kids
+        + '&total=' + payload.total
+        + '&diet=' + encodeURIComponent(payload.diet)
+        + '&bringing=' + encodeURIComponent(payload.bringing)
+        + '&note=' + encodeURIComponent(payload.note);
+      // Use fetch with no-cors and also fire an image request as backup
+      fetch(url, { method:'GET', mode:'no-cors' }).catch(()=>{});
+      await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = img.onerror = resolve;
+        img.src = url + '&cb=' + Date.now();
+        setTimeout(resolve, 6000);
+      });
       showToast('✅ Response saved to Google Sheets!');
     } catch(err) {
       showToast('⚠️ Saved locally (sheet sync failed)');
