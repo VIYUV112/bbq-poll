@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🔥 Summer BBQ Bash — Family Poll</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; min-height: 100vh; display: flex; justify-content: center; padding: 1rem 1rem 3rem; }
+  .app { max-width: 480px; width: 100%; }
+  .header { text-align: center; padding: 2rem 1rem 1rem; }
+  .header h1 { font-size: 26px; font-weight: 700; color: #1a1a1a; }
+  .header p { font-size: 15px; color: #666; margin-top: 6px; }
+  .step { display: none; }
+  .step.active { display: block; }
+  .card { background: #fff; border: 1px solid #e8e6e0; border-radius: 16px; padding: 1.25rem; margin-bottom: 12px; }
+  .section-label { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .section-sub { font-size: 13px; color: #888; margin-bottom: 12px; }
+  input[type="text"], input[type="password"] { width: 100%; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; color: #1a1a1a; outline: none; transition: border-color 0.15s; }
+  input[type="text"]:focus, input[type="password"]:focus { border-color: #1a1a1a; box-shadow: 0 0 0 3px rgba(0,0,0,0.07); }
+  .age-group { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f0ede8; }
+  .age-group:last-child { border-bottom: none; padding-bottom: 0; }
+  .age-group:first-child { padding-top: 0; }
+  .age-icon { font-size: 24px; width: 36px; text-align: center; flex-shrink: 0; }
+  .age-info { flex: 1; }
+  .age-label { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .age-sub { font-size: 12px; color: #999; margin-top: 2px; }
+  .count-ctrl { display: flex; align-items: center; gap: 10px; }
+  .count-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #ddd; background: #f5f4f0; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; color: #1a1a1a; transition: background 0.15s; flex-shrink: 0; line-height: 1; user-select: none; }
+  .count-btn:hover { background: #e8e6e0; }
+  .count-num { font-size: 20px; font-weight: 700; color: #1a1a1a; min-width: 26px; text-align: center; }
+  .total-bar { display: flex; justify-content: space-between; align-items: center; background: #f5f4f0; border-radius: 10px; padding: 11px 14px; margin-top: 12px; }
+  .total-bar span { font-size: 13px; color: #666; }
+  .total-bar strong { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+  .diet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .diet-btn { padding: 1rem; border-radius: 12px; border: 2px solid #e8e6e0; cursor: pointer; background: #fff; transition: all 0.15s; text-align: center; user-select: none; }
+  .diet-btn:hover { border-color: #bbb; background: #fafafa; }
+  .diet-btn.selected-veg { border-color: #1D9E75; background: #E1F5EE; }
+  .diet-btn.selected-nonveg { border-color: #D85A30; background: #FAECE7; }
+  .diet-btn .icon { font-size: 30px; display: block; margin-bottom: 6px; }
+  .diet-btn .label { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .diet-btn .sublabel { font-size: 12px; color: #888; margin-top: 2px; }
+  .contrib-grid { display: flex; flex-direction: column; gap: 8px; }
+  .contrib-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 2px solid #e8e6e0; border-radius: 12px; cursor: pointer; background: #fff; transition: all 0.15s; user-select: none; }
+  .contrib-item:hover { background: #fafafa; border-color: #ccc; }
+  .contrib-item.selected { border-color: #185FA5; background: #E6F1FB; }
+  .contrib-item.selected-none { border-color: #888; background: #f5f4f0; }
+  .none-item { border-style: dashed; }
+  .ci-icon { font-size: 22px; width: 32px; text-align: center; flex-shrink: 0; }
+  .ci-text { flex: 1; }
+  .ci-label { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .ci-sub { font-size: 12px; color: #888; margin-top: 1px; }
+  .ci-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; font-weight: 700; transition: all 0.15s; color: transparent; }
+  .contrib-item.selected .ci-check { background: #185FA5; border-color: #185FA5; color: white; }
+  .contrib-item.selected-none .ci-check { background: #888; border-color: #888; color: white; }
+  .btn-primary { width: 100%; padding: 15px; background: #1a1a1a; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.15s, transform 0.1s; margin-top: 8px; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-secondary { width: 100%; padding: 13px; background: #fff; color: #1a1a1a; border: 1px solid #ddd; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; margin-top: 8px; }
+  .btn-secondary:hover { background: #f5f4f0; }
+  .btn-back { background: none; border: none; color: #999; font-size: 14px; cursor: pointer; padding: 10px 0; font-family: inherit; display: block; margin: 4px auto 0; }
+  .btn-back:hover { color: #1a1a1a; }
+  .progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 1.5rem; }
+  .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; transition: background 0.25s; }
+  .progress-dot.done { background: #1a1a1a; }
+  textarea { width: 100%; padding: 11px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; font-family: inherit; background: #fff; color: #1a1a1a; outline: none; resize: none; min-height: 72px; }
+  textarea:focus { border-color: #1a1a1a; }
+  .summary-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid #f0ede8; font-size: 14px; gap: 12px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .key { color: #888; flex-shrink: 0; }
+  .summary-row .val { font-weight: 600; color: #1a1a1a; text-align: right; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .stat-box { background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 14px; text-align: center; }
+  .stat-num { font-size: 26px; font-weight: 700; color: #1a1a1a; }
+  .stat-lbl { font-size: 11px; color: #888; margin-top: 3px; }
+  .tag { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-right: 4px; margin-top: 3px; }
+  .tag-veg { background: #E1F5EE; color: #0F6E56; }
+  .tag-nonveg { background: #FAECE7; color: #993C1D; }
+  .tag-mixed { background: #E1F5EE; color: #0F6E56; }
+  .tag-contrib { background: #E6F1FB; color: #185FA5; }
+  .tag-none { background: #ebe9e3; color: #555; }
+  .resp-card { background: #fafafa; border: 1px solid #e8e6e0; border-radius: 12px; padding: 13px 15px; margin-bottom: 8px; }
+  .resp-name { font-weight: 700; font-size: 15px; color: #1a1a1a; margin-bottom: 4px; }
+  .admin-toggle { text-align: center; margin-top: 1.5rem; }
+  .admin-toggle button { background: none; border: none; font-size: 12px; color: #bbb; cursor: pointer; font-family: inherit; text-decoration: underline; }
+  .done-icon { font-size: 60px; text-align: center; margin: 1.5rem 0 1rem; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+  .sheet-banner { background: #E6F1FB; border: 1px solid #B3D0F0; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; color: #185FA5; display: flex; align-items: center; gap: 8px; }
+  .sheet-banner a { color: #185FA5; font-weight: 700; }
+  .setup-note { background: #FFF8E6; border: 1px solid #F0D98A; border-radius: 12px; padding: 14px; margin-bottom: 12px; font-size: 13px; color: #7A5C00; line-height: 1.7; }
+  .setup-note strong { display: block; margin-bottom: 6px; font-size: 14px; }
+  .setup-note a { color: #7A5C00; font-weight: 700; }
+  .pin-row { display: flex; gap: 8px; margin-top: 8px; }
+  .pin-row input { flex: 1; }
+  .pin-row .pin-btn { padding: 12px 18px; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .loading-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #ffffff88; border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .step-title { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+  .top-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>🔥 Summer BBQ Bash</h1>
+    <p>Quick check-in — takes 30 seconds!</p>
+  </div>
+
+  <div class="progress" id="progress">
+    <div class="progress-dot" id="dot0"></div>
+    <div class="progress-dot" id="dot1"></div>
+    <div class="progress-dot" id="dot2"></div>
+    <div class="progress-dot" id="dot3"></div>
+  </div>
+
+  <!-- STEP 0: Name + headcount -->
+  <div class="step active" id="step0">
+    <div class="card">
+      <div class="section-label">Your family name</div>
+      <input type="text" id="familyName" placeholder="e.g. The Sharma Family" />
+    </div>
+    <div class="card">
+      <div class="section-label">How many from your family?</div>
+      <div class="age-group">
+        <span class="age-icon">🧑</span>
+        <div class="age-info"><div class="age-label">Adults</div><div class="age-sub">11 years and above</div></div>
+        <div class="count-ctrl">
+          <button class="count-btn" onclick="changeCount('adults',-1)">−</button>
+          <span class="count-num" id="cnt-adults">0</span>
+          <button class="count-btn" onclick="changeCount('adults',1)">+</button>
+        </div>
+      </div>
+      <div class="age-group">
+        <span class="age-icon">🧒</span>
+        <div class="age-info"><div class="age-label">Juniors</div><div class="age-sub">5 to 10 years</div></div>
+        <div class="count-ctrl">
+          <button class="count-btn" onclick="changeCount('juniors',-1)">−</button>
+          <span class="count-num" id="cnt-juniors">0</span>
+          <button class="count-btn" onclick="changeCount('juniors',1)">+</button>
+        </div>
+      </div>
+      <div class="age-group">
+        <span class="age-icon">👶</span>
+        <div class="age-info"><div class="age-label">Kids</div><div class="age-sub">Under 5 years</div></div>
+        <div class="count-ctrl">
+          <button class="count-btn" onclick="changeCount('kids',-1)">−</button>
+          <span class="count-num" id="cnt-kids">0</span>
+          <button class="count-btn" onclick="changeCount('kids',1)">+</button>
+        </div>
+      </div>
+      <div class="total-bar">
+        <span>Total from your family</span>
+        <strong id="totalCount">0 people</strong>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="goTo(1)">Continue →</button>
+  </div>
+
+  <!-- STEP 1: Diet -->
+  <div class="step" id="step1">
+    <div class="card">
+      <div class="section-label">Diet preference</div>
+      <div class="diet-grid">
+        <div class="diet-btn" id="diet-veg" onclick="selectDiet('veg')">
+          <span class="icon">🥦</span><div class="label">Vegetarian</div><div class="sublabel">No meat / fish</div>
+        </div>
+        <div class="diet-btn" id="diet-nonveg" onclick="selectDiet('nonveg')">
+          <span class="icon">🍗</span><div class="label">Non-Veg</div><div class="sublabel">Chicken, kebabs etc.</div>
+        </div>
+        <div class="diet-btn" id="diet-both" onclick="selectDiet('both')" style="grid-column:1/-1;">
+          <span class="icon">🤝</span><div class="label">Mix — some veg, some non-veg</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="goTo(2)">Continue →</button>
+    <button class="btn-back" onclick="goTo(0)">← back</button>
+  </div>
+
+  <!-- STEP 2: Contributions -->
+  <div class="step" id="step2">
+    <div class="card">
+      <div class="section-label">Pitch in! 🙌</div>
+      <div class="section-sub">Select what you'd like to bring along</div>
+      <div class="contrib-grid" id="contribList"></div>
+    </div>
+    <button class="btn-primary" onclick="goTo(3)">Continue →</button>
+    <button class="btn-back" onclick="goTo(1)">← back</button>
+  </div>
+
+  <!-- STEP 3: Notes + summary -->
+  <div class="step" id="step3">
+    <div class="card">
+      <div class="section-label">Anything to note?</div>
+      <textarea id="noteInput" placeholder="Allergies, late arrival, extra guests... (optional)"></textarea>
+    </div>
+    <div class="card">
+      <div class="section-label">Your summary</div>
+      <div id="summaryContent"></div>
+    </div>
+    <button class="btn-primary" id="submitBtn" onclick="submitResponse()">✓ Submit my RSVP</button>
+    <button class="btn-back" onclick="goTo(2)">← back</button>
+  </div>
+
+  <!-- DONE -->
+  <div class="step" id="stepDone">
+    <div class="done-icon">🎉</div>
+    <div class="card" style="text-align:center; padding:1.5rem;">
+      <p style="font-size:20px; font-weight:700; color:#1a1a1a;">You're in!</p>
+      <p style="font-size:14px; color:#888; margin-top:6px;">Thanks for responding. See you at the BBQ!</p>
+    </div>
+    <button class="btn-secondary" onclick="anotherFamily()">+ Submit another family</button>
+    <button class="btn-primary" onclick="goToStep('stepAdminPin')">📋 Organiser view</button>
+  </div>
+
+  <!-- ADMIN PIN GATE -->
+  <div class="step" id="stepAdminPin">
+    <div class="top-row">
+      <button class="btn-back" style="padding:0; margin:0;" onclick="goToStep('stepDone')">← back</button>
+      <span class="step-title">Organiser access</span>
+    </div>
+    <div class="card">
+      <div class="section-label">Enter admin PIN</div>
+      <div class="section-sub">Only share this PIN with co-organisers</div>
+      <div class="pin-row">
+        <input type="password" id="pinInput" placeholder="Enter PIN" onkeydown="if(event.key==='Enter')checkPin()" />
+        <button class="pin-btn" onclick="checkPin()">Go</button>
+      </div>
+      <p id="pinError" style="color:#E24B4A;font-size:13px;margin-top:8px;display:none;">Incorrect PIN. Try again.</p>
+    </div>
+    <p style="font-size:12px;color:#aaa;text-align:center;margin-top:8px;">First time? Leave blank and press Go to set up.</p>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div class="step" id="stepAdmin">
+    <div class="top-row" style="justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn-back" style="padding:0;margin:0;" onclick="goToStep('stepDone')">← back</button>
+        <span class="step-title">Organiser view</span>
+      </div>
+      <a id="sheetTopLink" href="#" target="_blank" style="font-size:12px;color:#185FA5;font-weight:700;text-decoration:none;display:none;">📊 Sheet</a>
+    </div>
+    <div id="sheetBanner" class="sheet-banner" style="display:none;">
+      📊 Responses syncing to Google Sheets &nbsp;·&nbsp; <a id="sheetBannerLink" href="#" target="_blank">Open sheet →</a>
+    </div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="stats-grid" id="statsGrid2"></div>
+    <div id="contribSummary"></div>
+    <div class="section-label" id="respLabel" style="margin-bottom:8px;"></div>
+    <div id="responsesList"></div>
+    <div class="admin-toggle">
+      <button onclick="goToStep('stepSetup')" style="margin-right:12px;">⚙️ Setup / change settings</button>
+      <button onclick="clearAll()">🗑 Reset local responses</button>
+    </div>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <div class="step" id="stepSetup">
+    <div class="top-row">
+      <button class="btn-back" style="padding:0;margin:0;" onclick="goToStep('stepAdminPin')">← back</button>
+      <span class="step-title">⚙️ Google Sheets setup</span>
+    </div>
+
+    <div class="setup-note">
+      <strong>One-time setup — connect in 3 steps:</strong>
+      1. Go to <a href="https://sheets.new" target="_blank">sheets.new</a> — create a blank Google Sheet<br>
+      2. Click <b>Extensions → Apps Script</b> → paste the script below → click 💾 Save<br>
+      3. Click <b>Deploy → New deployment → Web app</b><br>
+         &nbsp;&nbsp;&nbsp;• Execute as: <b>Me</b><br>
+         &nbsp;&nbsp;&nbsp;• Who has access: <b>Anyone</b><br>
+         &nbsp;&nbsp;&nbsp;• Copy the <b>Web app URL</b> and paste below
+    </div>
+
+    <div class="card">
+      <div class="section-label">Apps Script — copy this entire block</div>
+      <textarea id="scriptBox" readonly style="font-size:11px;min-height:160px;background:#f5f4f0;border-color:#e8e6e0;font-family:monospace;margin-top:6px;">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['Timestamp','Family','Adults','Juniors','Kids','Total','Diet','Bringing','Notes']);
+  }
+  var d = JSON.parse(e.postData.contents);
+  sheet.appendRow([d.ts, d.familyName, d.adults, d.juniors, d.kids, d.total, d.diet, d.bringing, d.note]);
+  return ContentService
+    .createTextOutput(JSON.stringify({status:'ok'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e) { return doPost(e); }</textarea>
+      <button class="btn-secondary" style="margin-top:8px;" onclick="copyScript()">📋 Copy script</button>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Web App URL (from Apps Script deploy)</div>
+      <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec" style="margin-top:6px;" />
+
+      <div class="section-label" style="margin-top:14px;">Google Sheet URL (optional — for quick-open link)</div>
+      <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." style="margin-top:6px;" />
+
+      <div class="section-label" style="margin-top:14px;">Admin PIN (share with co-organisers)</div>
+      <input type="password" id="newPin" placeholder="e.g. 2025bbq" style="margin-top:6px;" />
+
+      <button class="btn-primary" style="margin-top:16px;" onclick="saveSetup()">✓ Save &amp; activate</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Persisted config ────────────────────────────────────────────────────────
+let SCRIPT_URL = localStorage.getItem('bbq_script_url') || '';
+let SHEET_URL  = localStorage.getItem('bbq_sheet_url')  || '';
+let ADMIN_PIN  = localStorage.getItem('bbq_admin_pin')  || '';
+
+const CONTRIBS = [
+  { id:'grill',    icon:'👨‍🍳', label:'Grill Master',            sub:'I was born for this. Hand me the tongs.' },
+  { id:'marinate', icon:'🍗',  label:'Marinate chicken / kebabs', sub:'Bringing the secret recipe from home' },
+  { id:'salad',    icon:'🥗',  label:'Fresh salad',               sub:'Any salad or raita' },
+  { id:'sides',    icon:'🫓',  label:'Sides & breads',            sub:'Naan, rolls, corn, dips' },
+  { id:'drinks',   icon:'🥤',  label:'Drinks & juice',            sub:'Soft drinks, water, juices' },
+  { id:'dessert',  icon:'🍮',  label:'Dessert',                   sub:'Sweets, fruit, ice cream' },
+  { id:'vegdish',  icon:'🍛',  label:'Veg dish / snacks',         sub:'Paneer, bhajis, samosas...' },
+];
+
+let state = { familyName:'', adults:0, juniors:0, kids:0, diet:'', contribs:[], isNone:false, note:'' };
+let responses = [];
+
+function init() {
+  try { responses = JSON.parse(localStorage.getItem('bbq_poll') || '[]'); } catch(e) { responses = []; }
+  renderContribs();
+  updateProgress(0);
+}
+
+function changeCount(g, d) {
+  state[g] = Math.max(0, Math.min(20, state[g] + d));
+  document.getElementById('cnt-' + g).textContent = state[g];
+  const t = state.adults + state.juniors + state.kids;
+  document.getElementById('totalCount').textContent = t + (t === 1 ? ' person' : ' people');
+}
+
+function selectDiet(d) {
+  state.diet = d;
+  ['veg','nonveg','both'].forEach(x => {
+    const el = document.getElementById('diet-' + x);
+    el.classList.remove('selected-veg','selected-nonveg');
+    if (x === d) el.classList.add(d === 'nonveg' ? 'selected-nonveg' : 'selected-veg');
+  });
+}
+
+function renderContribs() {
+  const items = CONTRIBS.map(c => `
+    <div class="contrib-item" id="ci-${c.id}" onclick="toggleContrib('${c.id}')">
+      <span class="ci-icon">${c.icon}</span>
+      <div class="ci-text"><div class="ci-label">${c.label}</div><div class="ci-sub">${c.sub}</div></div>
+      <div class="ci-check" id="chk-${c.id}"></div>
+    </div>`).join('');
+  const noneItem = `
+    <div class="contrib-item none-item" id="ci-none" onclick="toggleNone()">
+      <span class="ci-icon">🛋️</span>
+      <div class="ci-text"><div class="ci-label">Just showing up</div><div class="ci-sub">My presence is my contribution. You're welcome.</div></div>
+      <div class="ci-check" id="chk-none"></div>
+    </div>`;
+  document.getElementById('contribList').innerHTML = items + noneItem;
+}
+
+function toggleContrib(id) {
+  if (state.isNone) { state.isNone=false; document.getElementById('ci-none').classList.remove('selected-none'); document.getElementById('chk-none').textContent=''; }
+  const i = state.contribs.indexOf(id);
+  if (i > -1) state.contribs.splice(i, 1); else state.contribs.push(id);
+  CONTRIBS.forEach(c => {
+    const el=document.getElementById('ci-'+c.id), chk=document.getElementById('chk-'+c.id);
+    if (state.contribs.includes(c.id)) { el.classList.add('selected'); chk.textContent='✓'; }
+    else { el.classList.remove('selected'); chk.textContent=''; }
+  });
+}
+
+function toggleNone() {
+  state.contribs=[];
+  CONTRIBS.forEach(c => { document.getElementById('ci-'+c.id).classList.remove('selected'); document.getElementById('chk-'+c.id).textContent=''; });
+  state.isNone=!state.isNone;
+  const el=document.getElementById('ci-none'), chk=document.getElementById('chk-none');
+  if (state.isNone) { el.classList.add('selected-none'); chk.textContent='✓'; }
+  else { el.classList.remove('selected-none'); chk.textContent=''; }
+}
+
+function updateProgress(s) {
+  for (let i=0;i<4;i++) document.getElementById('dot'+i).className='progress-dot'+(i<=s?' done':'');
+}
+
+function goTo(step) {
+  if (step===1 && !document.getElementById('familyName').value.trim()) {
+    document.getElementById('familyName').style.borderColor='#E24B4A';
+    document.getElementById('familyName').focus();
+    alert('Please enter your family name'); return;
+  }
+  if (step===1) { state.familyName=document.getElementById('familyName').value.trim(); document.getElementById('familyName').style.borderColor=''; }
+  if (step===1 && (state.adults+state.juniors+state.kids)===0) { alert('Please add at least one person'); return; }
+  if (step===2 && !state.diet) { alert('Please pick a diet preference'); return; }
+  if (step===3) renderSummary();
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+step).classList.add('active');
+  updateProgress(step);
+  window.scrollTo(0,0);
+}
+
+function goToStep(id) {
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderSummary() {
+  const dietLabel={veg:'🥦 Vegetarian',nonveg:'🍗 Non-veg',both:'🤝 Mixed diet'}[state.diet];
+  const contribLabels=state.isNone?['🛋️ Just showing up']:state.contribs.map(id=>CONTRIBS.find(c=>c.id===id)?.label).filter(Boolean);
+  const total=state.adults+state.juniors+state.kids;
+  const breakdown=[state.adults?`${state.adults} adult${state.adults>1?'s':''}`:null,state.juniors?`${state.juniors} junior${state.juniors>1?'s':''}`:null,state.kids?`${state.kids} kid${state.kids>1?'s':''}`:null].filter(Boolean).join(', ');
+  document.getElementById('summaryContent').innerHTML=`
+    <div class="summary-row"><span class="key">Family</span><span class="val">${state.familyName}</span></div>
+    <div class="summary-row"><span class="key">Total guests</span><span class="val">${total} people</span></div>
+    <div class="summary-row"><span class="key">Breakdown</span><span class="val">${breakdown}</span></div>
+    <div class="summary-row"><span class="key">Diet</span><span class="val">${dietLabel}</span></div>
+    <div class="summary-row"><span class="key">Bringing</span><span class="val">${contribLabels.length?contribLabels.join(', '):'Not decided yet'}</span></div>`;
+}
+
+async function submitResponse() {
+  state.note = document.getElementById('noteInput').value;
+  const total = state.adults+state.juniors+state.kids;
+  const contribLabels = state.isNone?['Just showing up']:state.contribs.map(id=>CONTRIBS.find(c=>c.id===id)?.label).filter(Boolean);
+  const payload = {
+    ts: new Date().toLocaleString(),
+    familyName: state.familyName,
+    adults: state.adults, juniors: state.juniors, kids: state.kids, total,
+    diet: {veg:'Vegetarian',nonveg:'Non-Veg',both:'Mixed'}[state.diet],
+    bringing: contribLabels.join(', ') || 'Nothing',
+    note: state.note
+  };
+
+  responses.push({...state, ts: payload.ts});
+  try { localStorage.setItem('bbq_poll', JSON.stringify(responses)); } catch(e) {}
+
+  if (SCRIPT_URL) {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled=true;
+    btn.innerHTML='<span class="loading-spinner"></span>Saving...';
+    try {
+      await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      showToast('✅ Response saved to Google Sheets!');
+    } catch(err) {
+      showToast('⚠️ Saved locally (sheet sync failed)');
+    }
+    btn.disabled=false;
+    btn.innerHTML='✓ Submit my RSVP';
+  }
+
+  goToStep('stepDone');
+  document.getElementById('progress').style.display='none';
+  window.scrollTo(0,0);
+}
+
+function checkPin() {
+  const entered = document.getElementById('pinInput').value.trim();
+  if (!ADMIN_PIN) { goToStep('stepSetup'); return; }
+  if (entered === ADMIN_PIN) {
+    document.getElementById('pinError').style.display='none';
+    document.getElementById('pinInput').value='';
+    showAdmin();
+  } else {
+    document.getElementById('pinError').style.display='block';
+  }
+}
+
+function showAdmin() {
+  const tA=responses.reduce((a,r)=>a+r.adults,0);
+  const tJ=responses.reduce((a,r)=>a+r.juniors,0);
+  const tK=responses.reduce((a,r)=>a+r.kids,0);
+  const total=tA+tJ+tK;
+  const vegCount=responses.filter(r=>r.diet==='veg'||r.diet==='both').reduce((a,r)=>a+r.adults+r.juniors+r.kids,0);
+
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-box"><div class="stat-num">${responses.length}</div><div class="stat-lbl">Families</div></div>
+    <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-lbl">Total guests</div></div>
+    <div class="stat-box"><div class="stat-num">${vegCount}</div><div class="stat-lbl">Need veg</div></div>`;
+  document.getElementById('statsGrid2').innerHTML=`
+    <div class="stat-box"><div class="stat-num">${tA}</div><div class="stat-lbl">🧑 Adults</div></div>
+    <div class="stat-box"><div class="stat-num">${tJ}</div><div class="stat-lbl">🧒 Juniors</div></div>
+    <div class="stat-box"><div class="stat-num">${tK}</div><div class="stat-lbl">👶 Kids</div></div>`;
+
+  const cs={};
+  responses.forEach(r=>{ if(!r.isNone) r.contribs.forEach(c=>{ cs[c]=cs[c]||[]; cs[c].push(r.familyName); }); });
+  const covered=CONTRIBS.filter(c=>cs[c.id]);
+  const loungers=responses.filter(r=>r.isNone).map(r=>r.familyName);
+  let cHTML='';
+  if (covered.length||loungers.length) {
+    cHTML='<div class="card" style="margin-bottom:12px;"><div class="section-label" style="margin-bottom:10px;">Who\'s bringing what</div>';
+    covered.forEach(c=>{ cHTML+=`<div class="summary-row"><span class="key">${c.icon} ${c.label}</span><span class="val" style="font-size:12px;font-weight:500;">${cs[c.id].join(', ')}</span></div>`; });
+    if (loungers.length) cHTML+=`<div class="summary-row"><span class="key">🛋️ Just showing up</span><span class="val" style="font-size:12px;font-weight:500;">${loungers.join(', ')}</span></div>`;
+    cHTML+='</div>';
+  }
+  document.getElementById('contribSummary').innerHTML=cHTML;
+
+  if (responses.length) document.getElementById('respLabel').textContent='Individual responses';
+  document.getElementById('responsesList').innerHTML=responses.map(r=>{
+    const dietTag=r.diet==='veg'?'<span class="tag tag-veg">🥦 Veg</span>':r.diet==='nonveg'?'<span class="tag tag-nonveg">🍗 Non-veg</span>':'<span class="tag tag-mixed">🤝 Mixed</span>';
+    const parts=[r.adults?`${r.adults} adult${r.adults>1?'s':''}`:null,r.juniors?`${r.juniors} junior${r.juniors>1?'s':''}`:null,r.kids?`${r.kids} kid${r.kids>1?'s':''}`:null].filter(Boolean).join(' · ');
+    const cTags=r.isNone?'<span class="tag tag-none">🛋️ Just showing up</span>':r.contribs.map(id=>{const c=CONTRIBS.find(c=>c.id===id);return c?`<span class="tag tag-contrib">${c.icon} ${c.label}</span>`:''}).join('');
+    return `<div class="resp-card"><div class="resp-name">${r.familyName}</div><div style="font-size:12px;color:#888;margin-bottom:5px;">👥 ${parts}</div><div>${dietTag} ${cTags||'<span class="tag tag-none">Nothing selected</span>'}</div>${r.note?`<div style="margin-top:7px;font-size:12px;color:#888;">💬 ${r.note}</div>`:''}</div>`;
+  }).join('')||'<p style="font-size:14px;color:#aaa;padding:8px 0;">No responses yet</p>';
+
+  if (SHEET_URL) {
+    document.getElementById('sheetBanner').style.display='flex';
+    document.getElementById('sheetBannerLink').href=SHEET_URL;
+    document.getElementById('sheetTopLink').style.display='block';
+    document.getElementById('sheetTopLink').href=SHEET_URL;
+  }
+
+  goToStep('stepAdmin');
+}
+
+function saveSetup() {
+  const url = document.getElementById('scriptUrl').value.trim();
+  const surl = document.getElementById('sheetUrl').value.trim();
+  const pin = document.getElementById('newPin').value.trim();
+  if (!url) { alert('Please paste the Web App URL from Apps Script'); return; }
+  if (!pin) { alert('Please set an admin PIN'); return; }
+  SCRIPT_URL=url; SHEET_URL=surl; ADMIN_PIN=pin;
+  localStorage.setItem('bbq_script_url', url);
+  localStorage.setItem('bbq_sheet_url', surl);
+  localStorage.setItem('bbq_admin_pin', pin);
+  showToast('✅ Setup saved! Google Sheets connected.');
+  setTimeout(()=>showAdmin(), 800);
+}
+
+function copyScript() {
+  const t = document.getElementById('scriptBox');
+  t.select(); t.setSelectionRange(0,99999);
+  try { document.execCommand('copy'); showToast('📋 Script copied to clipboard!'); }
+  catch(e) { showToast('Manually select and copy the script above'); }
+}
+
+function anotherFamily() {
+  state={familyName:'',adults:0,juniors:0,kids:0,diet:'',contribs:[],isNone:false,note:''};
+  document.getElementById('familyName').value='';
+  ['adults','juniors','kids'].forEach(g=>document.getElementById('cnt-'+g).textContent='0');
+  document.getElementById('totalCount').textContent='0 people';
+  document.getElementById('noteInput').value='';
+  ['veg','nonveg','both'].forEach(x=>document.getElementById('diet-'+x).classList.remove('selected-veg','selected-nonveg'));
+  renderContribs();
+  document.getElementById('progress').style.display='flex';
+  goToStep('step0'); updateProgress(0);
+}
+
+function clearAll() {
+  if (confirm('Clear all local responses?\n\n(Your Google Sheet is NOT affected — data there stays safe.)')) {
+    responses=[];
+    try { localStorage.removeItem('bbq_poll'); } catch(e) {}
+    showAdmin();
+  }
+}
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+init();
+</script>
+</body>
+</html>
