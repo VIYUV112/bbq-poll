@@ -450,7 +450,6 @@ async function submitResponse() {
     btn.disabled=true;
     btn.innerHTML='<span class="loading-spinner"></span>Saving...';
     try {
-      // Build GET URL with all params
       const url = SCRIPT_URL + '?ts=' + encodeURIComponent(payload.ts)
         + '&familyName=' + encodeURIComponent(payload.familyName)
         + '&adults=' + payload.adults
@@ -460,12 +459,18 @@ async function submitResponse() {
         + '&diet=' + encodeURIComponent(payload.diet)
         + '&bringing=' + encodeURIComponent(payload.bringing)
         + '&note=' + encodeURIComponent(payload.note);
-      // Use fetch with no-cors and also fire an image request as backup
-      fetch(url, { method:'GET', mode:'no-cors' }).catch(()=>{});
+      // Use hidden iframe to bypass CORS on all mobile browsers
       await new Promise((resolve) => {
-        const img = new Image();
-        img.onload = img.onerror = resolve;
-        img.src = url + '&cb=' + Date.now();
+        let iframe = document.getElementById('submit-iframe');
+        if (!iframe) {
+          iframe = document.createElement('iframe');
+          iframe.id = 'submit-iframe';
+          iframe.style.display = 'none';
+          document.body.appendChild(iframe);
+        }
+        iframe.onload = resolve;
+        iframe.onerror = resolve;
+        iframe.src = url;
         setTimeout(resolve, 6000);
       });
       showToast('✅ Response saved to Google Sheets!');
