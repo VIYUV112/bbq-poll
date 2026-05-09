@@ -331,6 +331,11 @@ function init() {
   try { responses = JSON.parse(localStorage.getItem('bbq_poll') || '[]'); } catch(e) { responses = []; }
   renderContribs();
   updateProgress(0);
+  // If URL contains ?admin, go straight to organiser PIN screen
+  if (window.location.search.includes('admin') || window.location.hash.includes('admin')) {
+    document.getElementById('progress').style.display = 'none';
+    goToStep('stepAdminPin');
+  }
 }
 
 function changeCount(g, d) {
